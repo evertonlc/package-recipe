@@ -8,7 +8,7 @@ on:
 jobs:
     build:
         env:
-            MAIN_VERSION: 20.x
+            MAIN_VERSION: 21.x
         permissions:
             pull-requests: write
             security-events: write
