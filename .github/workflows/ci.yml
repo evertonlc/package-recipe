@@ -7,6 +7,9 @@ on:
 
 jobs:
     build:
+        permissions:
+            pull-requests: write
+            security-events: write
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -21,3 +24,41 @@ jobs:
               run: npm install
             - name: Run tests
               run: npm test
+            - name: Prepare coverage report in markdown
+              uses: fingerprintjs/action-coverage-report-md@v1.0.6
+              id: coverage
+              with:
+                textReportPath: coverage/coverage.txt
+            - name: Add coverage comment to the PR
+              uses: marocchino/sticky-pull-request-comment@v2.8.0
+              with:
+                message: ${{ steps.coverage.outputs.markdownReport }}
+            - name: Add coverage report to the job summary
+              run: |
+                echo "## Code Coverage v${{ matrix.node-version }}" >> "$GITHUB_STEP_SUMMARY"
+                echo "${{ steps.coverage.outputs.markdownReport }}" >> "$GITHUB_STEP_SUMMARY"
+            - name: Upload page artifacts
+              if: matrix.node-version == env.MAIN_VERSION
+              uses: actions/upload-pages-artifact@v4
+              with:
+                path: coverage
+    deploy:
+      if: github.ref == 'refs/heads/main'
+      needs: build
+      runs-on: ubuntu-latest
+      concurrency:
+        group: "pages"
+        cancel-in-progress: true
+      permissions:
+        contents: read
+        pages: write
+        id-token: write
+      environment:
+        name: "github-pages"
+        url: ${{ steps.deployment.outputs.page_url }}lcov-report
+      steps:
+        - name: Setup Pages
+          uses: actions/configure-pages@v5
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
