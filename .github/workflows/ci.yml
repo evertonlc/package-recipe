@@ -56,8 +56,8 @@ jobs:
         pages: write
         id-token: write
       environment:
-        name: "github-pages"
-        url: "${{ steps.deployment.outputs.page_url }}lcov-report"
+        name: github-pages
+        url: "${{ steps.deployment.outputs.page_url }}/lcov-report"
       steps:
         - name: Setup Pages
           uses: actions/configure-pages@v5
