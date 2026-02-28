@@ -7,6 +7,8 @@ on:
 
 jobs:
     build:
+        env:
+            MAIN_VERSION: 20.x
         permissions:
             pull-requests: write
             security-events: write
@@ -38,7 +40,7 @@ jobs:
                 echo "## Code Coverage v${{ matrix.node-version }}" >> "$GITHUB_STEP_SUMMARY"
                 echo "${{ steps.coverage.outputs.markdownReport }}" >> "$GITHUB_STEP_SUMMARY"
             - name: Upload page artifacts
-              if: matrix.node-version == env.MAIN_VERSION
+              if: ${{ matrix.node-version == env.MAIN_VERSION }}
               uses: actions/upload-pages-artifact@v4
               with:
                 path: coverage
